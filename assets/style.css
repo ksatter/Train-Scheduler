@@ -1,0 +1,23 @@
+
+#title {
+    background: url("train.jpg");
+    background-size: cover;
+    margin-top: 10px;
+    border: 1px solid black;
+    padding-top: 50px;
+    padding-bottom: 0px;
+}
+
+#title h1 {
+    font-size: 3em;
+    color: black;
+}
+.invalid {
+    border: 1px solid red;
+    color: red;
+}
+.invalid-input::after {
+    content: " * All fields are required.";
+    color: red;
+    font-size: xx-small;
+}

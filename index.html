@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Train Timer</title>
+
+    <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Maven+Pro:900" rel="stylesheet">
+    <link rel="stylesheet" href="assets/bootstrap-clockpicker.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/style.css">
+
+
+</head>
+<body>
+
+<div class="container">
+    <div class="jumbotron" id="title">
+        <h1 class="display" >Train Timer</h1>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="panel panel-default">
+                <div class="panel panel-heading">Currently Tracked Trains</div>
+                <div class="panel panel-body">
+                    <table class="table table-striped" id="train-data">
+                        <tr>
+                            <th>Train</th>
+                            <th>Stop</th>
+                            <th>Frequency</th>
+                            <th>Next Arrival</th>
+                            <th>Minutes Away</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel panel-heading">Add Your Train</div>
+                <div class="panel panel-body">
+                    <div class="form-group">
+                        <label class="input-label">Train</label>
+                        <input type="text" class="form-control" placeholder="Train name" id="name-input" required>
+                        <br>
+                        <label class="input-label">Stop</label>
+                        <input type="text" class="form-control" placeholder="Stop Name" id="stop-input" required>
+                        <br>
+                        <label class="input-label">Previous Train Time</label>
+                        <div class="input-group clockpicker">
+                            <input type="text" class="form-control" placeholder="Previous arrival time" id="time-input" required>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span></span>
+                        </div>
+                        <br>
+                        <label class="input-label">Train Frequency</label>
+                        <input type="text" class="form-control" placeholder="Time in minutes" id="train-interval" required></div>
+                        <input class="btn btn-default" type="submit" value="Submit" id="submit">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/4.4.0/firebase.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/bootstrap-clockpicker.js"></script>
+<script type="text/javascript">
+    $('.clockpicker').clockpicker({
+        placement: 'top',
+        align: 'left',
+        donetext: 'Done'
+    });$('.clockpicker').clockpicker();
+</script>
+
+</body>
+</html>
