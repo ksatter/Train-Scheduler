@@ -9,35 +9,26 @@ $(document).ready(function () {
         messagingSenderId: "364563583460"
     };
     firebase.initializeApp(config);
-
-
     var database = firebase.database();
-
+    //Global variables
     var name ;
     var stop ;
     var lastTime ;
     var stopInterval;
-    //
+    //Add new train
     $("#submit").on("click", function () {
-        nameInput = $("#name-input");
-        stopInput = $("#stop-input");
-        timeInput = $("#time-input");
-        intInput = $("#train-interval");
-
-
-        // Grab data input
+        var nameInput = $("#name-input");
+        var stopInput = $("#stop-input");
+        var timeInput = $("#time-input");
+        var intInput = $("#train-interval");
+        //Get Data from form
         name = nameInput.val();
         stop = stopInput.val();
         lastTime = timeInput.val();
         stopInterval = intInput.val();
-
-        // Check that data was grabbed correctly
-        console.log(name);
-        console.log(stop);
-        console.log(lastTime);
-        console.log(stopInterval);
-
+        //verify that all fields filled out
         if (name && stop && lastTime && stopInterval) {
+            //push to db
             database.ref('/Train-Timer').push({
                 name: name,
                 stop: stop,
@@ -45,11 +36,13 @@ $(document).ready(function () {
                 stopInterval: stopInterval,
                 dateAdded: firebase.database.ServerValue.TIMESTAMP
             });
-
-          $(".form-input").val("");
-          $(".form-input").removeClass("invalid");
-          $(".input-label").removeClass('invalid-input');
+            //clear form
+            $(".form-input").val("");
+            $(".form-input").removeClass("invalid");
+            $(".input-label").removeClass('invalid-input');
+            updateTable();
         }
+        //determine what field is empty and mark
         else {
             checkInput(name, nameInput);
             checkInput(stop, stopInput);
@@ -58,14 +51,8 @@ $(document).ready(function () {
         }
 
     });
-
-
     //calculate next stop time
     function nextStopCalc(time, interval) {
-        var prevTime = moment(time, 'hhmm').subtract(1, "year");
-        var timeDiff = moment().diff(prevTime, 'minutes');
-
-        return timeDiff % interval
 
     }
 
@@ -80,37 +67,84 @@ $(document).ready(function () {
             div.prev().removeClass("invalid-input");
         }
     }
-    //Load data from firtebase add data to employee table
-    database.ref('/Train-Timer').orderByChild("dateAdded").on("child_added", function (snapshot) {
-        // Store data in variable sv
-        var snapshot = snapshot.val();
-        var timeInt = nextStopCalc(snapshot.lastTime, snapshot.stopInterval);
-        var nextStop = moment().add(timeInt, "minutes").format('hh:mm');
+    //function to update table
+    function updateTable() {
+        $("#train-data").empty();
+        //Load data
+        database.ref('/Train-Timer').orderByChild("dateAdded").on("child_added", function (snapshot) {
+            //retrieve data
+            var key = snapshot.key;
+            var snapshot = snapshot.val();
+            //run time calculations
+            var prevTime = moment(snapshot.lastTime, 'hhmm');
+            var currentTime = moment().add(24, "hours");
+            var timeDiff = currentTime.diff(prevTime, 'minutes');
+            var timeTill = snapshot.stopInterval - (timeDiff % snapshot.stopInterval);
+            var nextStop = moment().add(timeTill, "minutes").format('hh:mm');
 
-        //Create table
-        var row = $("<tr>");
-        var data = $("<td>");
+            //Create row
+            var row = $("<tr>");
+            row.attr("data-key", key);
+            $("#train-data").append(row);
+            //name
+            var data = $("<td>");
+            data.attr("data-type", "name");
+            data.text(snapshot.name);
+            row.append(data);
+            //stop
+            data = $("<td>");
+            data.attr("data-type", "stop");
+            data.text(snapshot.stop);
+            row.append(data);
+            //frequency
+            data = $("<td>");
+            data.attr("data-type", "interval");
+            data.text(`${snapshot.stopInterval} minutes`);
+            row.append(data);
+            //next arrival
+            data = $("<td>");
+            data.attr("data-type", "next-stop");
+            data.text(nextStop);
+            row.append(data);
+            // minutes away
+            data = $("<td>");
+            data.attr("data-type", "interval-time");
+            data.text(timeTill);
+            row.append(data);
+            //edit button (wip)
+            /*data = $("<td>");
+            $("#train-data").append(row);
+            var button = $("<button>");
+            button.addClass("btn btn-sm btn-primary edit-button");
+            button.text("Edit");
+            data.append(button);
+            row.append(data);*/
+            //delete button
+            data = $("<td>");
+            button = $("<button>");
+            button.addClass("btn btn-sm btn-primary delete-button");
+            button.text("Delete");
+            data.append(button);
+            row.append(data);
+        });
+    };
+    //delete button functionality
+    $(document).click(".delete-button", function () {
+        var clicked = event.target;
+        //find row
+        var clickedRow = $(clicked).closest('tr');
+        //retrieve db key
+        var clickedKey = $(clickedRow).attr("data-key");
+        //remove row
+        clickedRow.remove();
+        //remove from db
+        database.ref('/Train-Timer').child(clickedKey).remove();
 
-        data.text(snapshot.name);
-        row.append(data);
+    });
+        //initial write
+        updateTable();
+        //update every minute
+        var timedUpdate = setInterval(updateTable, 60 * 1000)
 
-        data = $("<td>");
-        data.text(snapshot.stop);
-        row.append(data);
-
-        data = $("<td>");
-        data.text(snapshot.stopInterval);
-        row.append(data);
-
-        data = $("<td>");
-        data.text(nextStop);
-        row.append(data);
-
-        data = $("<td>");
-        data.text(timeInt);
-        row.append(data);
-        //Append New rows to employee tables body
-        $("#train-data").append(row);
-    })
 })
 ;
